@@ -12,6 +12,11 @@ import subprocess
 IMAGE_CONVERT_CMD = ["convert", "{input}", "-quality", "85%", "-resize", "80%", "{output}"]
 VIDEO_CONVERT_CMD = ["ffmpeg", "-i", "{input}", "{output}"]
 
+def filesize_mb_fmt(path):
+    bytes = os.stat(path).st_size
+    mb = float(bytes) / 1024.0 / 1024.0
+    return "%.1fMB" % mb 
+
 def replace(template, input, output):
     l = []
     for item in template:
@@ -31,7 +36,10 @@ def convert_mov(input_path):
     if subprocess.call(cmd) != 0:
         print('ERROR converting', input_path)
     else:
-        print ('remove', input_path)
+        size_before = filesize_mb_fmt(input_path)
+        size_after = filesize_mb_fmt(output_path)
+        print ('remove', input_path, 'size before', size_before,
+               'size after', size_after)
         os.remove(input_path)
 
 def convert_cr2(input_path):
@@ -42,7 +50,8 @@ def convert_cr2(input_path):
     if subprocess.call(cmd) != 0:
         print('ERROR converting', input_path)
     else:
-        print ('remove', input_path)
+        print ('remove', input_path, 'size before', size_before,
+               'size after', size_after)
         os.remove(input_path)
 
 class MainWindow(QWidget):
