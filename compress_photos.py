@@ -50,6 +50,8 @@ def convert_cr2(input_path):
     if subprocess.call(cmd) != 0:
         print('ERROR converting', input_path)
     else:
+        size_before = filesize_mb_fmt(input_path)
+        size_after = filesize_mb_fmt(output_path)
         print ('remove', input_path, 'size before', size_before,
                'size after', size_after)
         os.remove(input_path)
@@ -66,12 +68,18 @@ class MainWindow(QWidget):
         self.tree_widget.header().setStretchLastSection(False)
         self.tree_widget.header().setSectionResizeMode(QHeaderView.ResizeToContents)
         
+        self.convert_mov_chk = QCheckBox("Convert mov")
+        self.convert_mov_chk.setChecked(True)
+        self.convert_cr2_chk = QCheckBox("Convert cr2")
+        self.convert_cr2_chk.setChecked(True)
         self.add_btn = QPushButton("Add folder...")
         self.convert_btn = QPushButton("Convert")
         self.clear_btn = QPushButton("Clear")
         
         layout.addWidget(self.tree_widget)
         btn_layout = QHBoxLayout()
+        btn_layout.addWidget(self.convert_mov_chk)
+        btn_layout.addWidget(self.convert_cr2_chk)
         btn_layout.addWidget(self.add_btn)
         btn_layout.addWidget(self.convert_btn)
         btn_layout.addWidget(self.clear_btn)
@@ -127,10 +135,12 @@ class MainWindow(QWidget):
         path = item.data(0, QtCore.Qt.UserRole)
         if path is not None:
             contents = self.list_contents(path)
-            for movfile in contents['mov']:
-                convert_mov(movfile)
-            for cr2file in contents['cr2']:
-                convert_cr2(cr2file)
+            if self.convert_mov_chk.isChecked():
+                for movfile in contents['mov']:
+                    convert_mov(movfile)
+            if self.convert_cr2_chk.isChecked():
+                for cr2file in contents['cr2']:
+                    convert_cr2(cr2file)
         for i in range(item.childCount()):
             child = item.child(i)
             self.convert_item(child)
